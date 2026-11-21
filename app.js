@@ -1,0 +1,9 @@
+const tg=window.Telegram?.WebApp;if(tg){tg.ready();tg.expand()}
+const labels={knowledge:["База знаний","KNOWLEDGE BASE"],tools:["Инструменты","TOOLS & TEMPLATES"],services:["Услуги","FORMA SERVICES"],events:["События","UPDATES & EVENTS"]};
+const panel=document.querySelector("#panel"),items=document.querySelector("#items");
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+async function openSection(key){if(!labels[key])return;document.querySelector("#heading").textContent=labels[key][0];document.querySelector("#eyebrow").textContent=labels[key][1];panel.classList.remove("hidden");panel.scrollIntoView({behavior:"smooth"});items.innerHTML='<p>Загружаем...</p>';if(key==="services"){items.innerHTML='<article class="material"><b>Решения FORMA</b><p>Анализ бренда, контент-стратегия и планирование под задачи проекта.</p></article>';return}try{const r=await fetch("/api/materials?section="+encodeURIComponent(key));const data=await r.json();items.innerHTML=data.length?data.map(x=>`<article class="material"><b>${esc(x.title)}</b><p>${esc(x.description)}</p><small>${esc(x.level)}</small></article>`).join(""):'<article class="material"><b>Материалы готовятся</b><p>Скоро здесь появятся обновления.</p></article>'}catch{items.textContent="Не удалось загрузить материалы."}}
+document.querySelectorAll("[data-section]").forEach(b=>b.addEventListener("click",()=>openSection(b.dataset.section)));
+function home(){panel.classList.add("hidden");window.scrollTo({top:0,behavior:"smooth"})}
+document.querySelectorAll("[data-home]").forEach(b=>b.addEventListener("click",home));document.querySelector("#back").addEventListener("click",home);
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active")}));
